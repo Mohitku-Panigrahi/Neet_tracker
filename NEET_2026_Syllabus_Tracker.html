@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEET UG 2026 — Syllabus Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --physics: #1a6b8a;
+    --physics-light: #e6f4f9;
+    --physics-mid: #a8d4e4;
+    --chemistry: #7a5c00;
+    --chemistry-light: #fdf3d0;
+    --chemistry-mid: #f0d07a;
+    --biology: #2d6a4f;
+    --biology-light: #e8f5ef;
+    --biology-mid: #95d5b2;
+    --bg: #f7f6f2;
+    --card: #ffffff;
+    --text: #1a1a1a;
+    --muted: #6b6b6b;
+    --border: #e2e0da;
+    --radius: 14px;
+    --done-color: #aaa;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0 0 60px;
+  }
+
+  /* ── TOP HERO ── */
+  .hero {
+    background: #0f1923;
+    color: #fff;
+    padding: 36px 32px 28px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-bottom: 3px solid #e8c840;
+  }
+  .hero-inner { max-width: 900px; margin: 0 auto; }
+  .hero h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(22px, 4vw, 32px);
+    letter-spacing: -0.5px;
+    margin-bottom: 4px;
+  }
+  .hero p { font-size: 13px; color: #aaa; margin-bottom: 18px; }
+
+  .overall-progress { display: flex; align-items: center; gap: 14px; }
+  .prog-track { flex: 1; height: 7px; background: #2a3545; border-radius: 4px; overflow: hidden; }
+  .prog-fill { height: 100%; background: #e8c840; border-radius: 4px; transition: width 0.4s cubic-bezier(.4,0,.2,1); }
+  .prog-label { font-size: 13px; color: #e8c840; font-weight: 600; white-space: nowrap; min-width: 60px; text-align: right; }
+
+  /* ── SUBJECT TABS ── */
+  .tabs-wrap { max-width: 900px; margin: 28px auto 0; padding: 0 20px; }
+  .tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+  .tab {
+    padding: 9px 22px;
+    border-radius: 40px;
+    border: 1.5px solid var(--border);
+    background: var(--card);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    color: var(--muted);
+    transition: all 0.18s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .tab:hover { border-color: #aaa; color: var(--text); }
+  .tab.active-p { background: var(--physics-light); border-color: var(--physics); color: var(--physics); }
+  .tab.active-c { background: var(--chemistry-light); border-color: var(--chemistry); color: var(--chemistry); }
+  .tab.active-b { background: var(--biology-light); border-color: var(--biology); color: var(--biology); }
+
+  /* ── STATS ROW ── */
+  .stats-row { display: flex; gap: 10px; margin: 18px 0 24px; flex-wrap: wrap; }
+  .stat-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .stat-box b { color: var(--text); font-weight: 600; }
+
+  /* ── CONTENT AREA ── */
+  .content { max-width: 900px; margin: 0 auto; padding: 0 20px; }
+  .subject-panel { display: none; }
+  .subject-panel.active { display: block; }
+
+  /* ── UNIT CARD ── */
+  .unit-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 12px;
+    overflow: hidden;
+    transition: box-shadow 0.2s;
+  }
+  .unit-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.07); }
+
+  .unit-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    cursor: pointer;
+    user-select: none;
+    border-bottom: 1px solid transparent;
+    transition: background 0.15s;
+  }
+  .unit-header:hover { background: #fafaf8; }
+  .unit-header.open { border-bottom-color: var(--border); }
+
+  .unit-num {
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 600;
+    flex-shrink: 0;
+  }
+  .unit-title { font-size: 14px; font-weight: 600; flex: 1; line-height: 1.4; }
+  .unit-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+  .mini-bar-wrap { width: 50px; height: 5px; background: #eee; border-radius: 3px; overflow: hidden; }
+  .mini-bar-fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
+  .unit-count { font-size: 12px; color: var(--muted); white-space: nowrap; }
+  .chevron { font-size: 10px; color: var(--muted); transition: transform 0.2s; }
+  .chevron.open { transform: rotate(90deg); }
+
+  /* ── TOPICS LIST ── */
+  .topics-list { padding: 8px 18px 14px; display: none; }
+  .topics-list.open { display: block; }
+
+  .topic-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0eeea;
+    transition: opacity 0.2s;
+  }
+  .topic-row:last-child { border-bottom: none; }
+
+  .topic-row input[type="checkbox"] {
+    margin-top: 2px;
+    width: 16px; height: 16px;
+    flex-shrink: 0;
+    cursor: pointer;
+    border-radius: 4px;
+  }
+  .topic-text {
+    font-size: 13.5px;
+    color: var(--text);
+    line-height: 1.55;
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+  .topic-text.done {
+    text-decoration: line-through;
+    color: var(--done-color);
+  }
+
+  .select-all-row {
+    display: flex;
+    justify-content: flex-end;
+    padding: 6px 0 2px;
+  }
+  .select-all-btn {
+    font-size: 12px;
+    color: var(--muted);
+    background: none;
+    border: 1px dashed var(--border);
+    border-radius: 20px;
+    padding: 3px 12px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.15s;
+  }
+  .select-all-btn:hover { border-color: #aaa; color: var(--text); }
+
+  /* subject accent colors */
+  .p .unit-num { background: var(--physics-light); color: var(--physics); }
+  .p .mini-bar-fill { background: var(--physics); }
+  .p input[type="checkbox"] { accent-color: var(--physics); }
+
+  .c .unit-num { background: var(--chemistry-light); color: var(--chemistry); }
+  .c .mini-bar-fill { background: var(--chemistry); }
+  .c input[type="checkbox"] { accent-color: var(--chemistry); }
+
+  .b .unit-num { background: var(--biology-light); color: var(--biology); }
+  .b .mini-bar-fill { background: var(--biology); }
+  .b input[type="checkbox"] { accent-color: var(--biology); }
+
+  /* reset button */
+  .reset-btn {
+    font-size: 12px; color: #999;
+    background: none; border: none; cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    text-decoration: underline;
+  }
+  .reset-btn:hover { color: #e55; }
+
+  @media(max-width:600px) {
+    .hero { padding: 24px 16px 20px; }
+    .content, .tabs-wrap { padding: 0 12px; }
+    .unit-header { padding: 12px 14px; }
+    .topics-list { padding: 6px 14px 12px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:6px;">
+      <h1>NEET UG 2026 &mdash; Syllabus Tracker</h1>
+      <button class="reset-btn" onclick="resetAll()">Reset all</button>
+    </div>
+    <p>National Medical Commission &bull; NTA &bull; Physics · Chemistry · Biology</p>
+    <div class="overall-progress">
+      <div class="prog-track"><div class="prog-fill" id="overall-fill" style="width:0%"></div></div>
+      <span class="prog-label" id="overall-label">0 / 0</span>
+    </div>
+  </div>
+</div>
+
+<!-- TABS + CONTENT -->
+<div class="tabs-wrap">
+  <div class="tabs">
+    <button class="tab active-p" onclick="switchTab('physics',this,'active-p')">&#9672; Physics (20 units)</button>
+    <button class="tab" onclick="switchTab('chemistry',this,'active-c')">&#9672; Chemistry (20 units)</button>
+    <button class="tab" onclick="switchTab('biology',this,'active-b')">&#9672; Biology (10 units)</button>
+  </div>
+</div>
+
+<div class="content">
+  <div class="stats-row" id="stats-row"></div>
+
+  <!-- PHYSICS -->
+  <div id="panel-physics" class="subject-panel active" data-subject="p"></div>
+
+  <!-- CHEMISTRY -->
+  <div id="panel-chemistry" class="subject-panel" data-subject="c"></div>
+
+  <!-- BIOLOGY -->
+  <div id="panel-biology" class="subject-panel" data-subject="b"></div>
+</div>
+
+<script>
+const SYLLABUS = {
+  physics: [
+    { title: "Unit 1: Physics and Measurement", topics: [
+      "Units of measurements, System of Units, SI Units",
+      "Fundamental and derived units",
+      "Least count and significant figures",
+      "Errors in measurements",
+      "Dimensions of physical quantities",
+      "Dimensional analysis and its applications"
+    ]},
+    { title: "Unit 2: Kinematics", topics: [
+      "Frame of reference, motion in a straight line",
+      "Position-time graph, speed and velocity",
+      "Uniform and non-uniform motion, average speed and instantaneous velocity",
+      "Uniformly accelerated motion, velocity-time and position-time graphs",
+      "Relations for uniformly accelerated motion",
+      "Scalars and Vectors, Vector addition and subtraction, scalar and vector products",
+      "Unit Vector, Resolution of a Vector, Relative Velocity",
+      "Motion in a plane, Projectile Motion",
+      "Uniform Circular Motion"
+    ]},
+    { title: "Unit 3: Laws of Motion", topics: [
+      "Force and inertia, Newton's First Law of motion",
+      "Momentum, Newton's Second Law of motion, Impulse",
+      "Newton's Third Law of motion",
+      "Law of conservation of linear momentum and its applications",
+      "Equilibrium of concurrent forces",
+      "Static and Kinetic friction, laws of friction, rolling friction",
+      "Centripetal force and its applications: vehicle on level circular road",
+      "Vehicle on a banked road"
+    ]},
+    { title: "Unit 4: Work, Energy and Power", topics: [
+      "Work done by a constant force and a variable force",
+      "Kinetic and potential energies, work-energy theorem, power",
+      "Potential energy of spring, conservation of mechanical energy",
+      "Conservative and non-conservative forces",
+      "Motion in a vertical circle",
+      "Elastic and inelastic collisions in one and two dimensions"
+    ]},
+    { title: "Unit 5: Rotational Motion", topics: [
+      "Centre of mass of a two-particle system and a rigid body",
+      "Basic concepts of rotational motion, moment of a force, torque",
+      "Angular momentum and conservation of angular momentum",
+      "Moment of inertia, radius of gyration",
+      "Values of moments of inertia for simple geometrical objects",
+      "Parallel and perpendicular axes theorems and their applications",
+      "Equilibrium of rigid bodies, rigid body rotation and equations of rotational motion",
+      "Comparison of linear and rotational motions"
+    ]},
+    { title: "Unit 6: Gravitation", topics: [
+      "Universal law of gravitation",
+      "Acceleration due to gravity and its variation with altitude and depth",
+      "Kepler's laws of planetary motion",
+      "Gravitational potential energy and gravitational potential",
+      "Escape velocity",
+      "Motion of a satellite, orbital velocity, time period and energy of satellite"
+    ]},
+    { title: "Unit 7: Properties of Solids and Liquids", topics: [
+      "Elastic behaviour, Stress-strain relationship, Hooke's Law",
+      "Young's modulus, bulk modulus, modulus of rigidity",
+      "Pressure due to a fluid column, Pascal's law and its applications",
+      "Effect of gravity on fluid pressure",
+      "Viscosity, Stokes' law, terminal velocity, streamline and turbulent flow, critical velocity",
+      "Bernoulli's principle and its applications",
+      "Surface energy and surface tension, angle of contact",
+      "Excess of pressure across a curved surface; drops, bubbles and capillary rise",
+      "Heat, temperature, thermal expansion; specific heat capacity, calorimetry",
+      "Change of state, latent heat",
+      "Heat transfer — conduction, convection and radiation"
+    ]},
+    { title: "Unit 8: Thermodynamics", topics: [
+      "Thermal equilibrium, Zeroth law of thermodynamics, concept of temperature",
+      "Heat, work and internal energy",
+      "First law of thermodynamics, isothermal and adiabatic processes",
+      "Second law of thermodynamics: reversible and irreversible processes"
+    ]},
+    { title: "Unit 9: Kinetic Theory of Gases", topics: [
+      "Equation of state of a perfect gas, work done on compressing a gas",
+      "Kinetic theory of gases — assumptions, concept of pressure",
+      "Kinetic interpretation of temperature, RMS speed of gas molecules",
+      "Degrees of freedom, Law of equipartition of energy",
+      "Applications to specific heat capacities of gases",
+      "Mean free path, Avogadro's number"
+    ]},
+    { title: "Unit 10: Oscillations and Waves", topics: [
+      "Oscillations and periodic motion — time period, frequency, displacement",
+      "Simple harmonic motion (SHM) and its equation, phase",
+      "Oscillations of a spring — restoring force and force constant, energy in SHM",
+      "Simple pendulum — derivation of expression for its time period",
+      "Wave motion: longitudinal and transverse waves, speed of travelling wave",
+      "Displacement relation for a progressive wave",
+      "Principle of superposition of waves, reflection of waves",
+      "Standing waves in strings and organ pipes, fundamental mode and harmonics",
+      "Beats"
+    ]},
+    { title: "Unit 11: Electrostatics", topics: [
+      "Electric charges, conservation of charge, Coulomb's law",
+      "Forces between multiple charges: superposition principle and continuous charge distribution",
+      "Electric field due to a point charge, Electric field lines",
+      "Electric dipole, Electric field due to a dipole, Torque on a dipole in uniform field",
+      "Electric flux, Gauss's law and its applications",
+      "Field due to infinitely long straight wire, infinite plane sheet, thin spherical shell",
+      "Electric potential for a point charge, dipole and system of charges; potential difference",
+      "Equipotential surfaces, Electrical potential energy",
+      "Conductors, insulators, Dielectrics and electric polarization",
+      "Capacitors and capacitances, combination of capacitors in series and parallel",
+      "Capacitance of a parallel plate capacitor with and without dielectric",
+      "Energy stored in a capacitor"
+    ]},
+    { title: "Unit 12: Current Electricity", topics: [
+      "Electric current, drift velocity, mobility and their relation with electric current",
+      "Ohm's law, Electrical resistance, V-I characteristics",
+      "Electrical energy and power, Electrical resistivity and conductivity",
+      "Series and parallel combinations of resistors, temperature dependence of resistance",
+      "Internal resistance, potential difference and emf of a cell",
+      "Combination of cells in series and parallel",
+      "Kirchhoff's laws and their applications",
+      "Wheatstone bridge, Metre Bridge"
+    ]},
+    { title: "Unit 13: Magnetic Effects of Current and Magnetism", topics: [
+      "Biot-Savart law and its application to current-carrying circular loop",
+      "Ampere's law and its applications to infinitely long straight wire and solenoid",
+      "Force on a moving charge in uniform magnetic and electric fields",
+      "Force on a current-carrying conductor in a uniform magnetic field",
+      "Force between two parallel current-carrying conductors, definition of ampere",
+      "Torque on a current loop in a uniform magnetic field",
+      "Moving coil galvanometer, sensitivity, conversion to ammeter and voltmeter",
+      "Current loop as a magnetic dipole, Bar magnet as an equivalent solenoid",
+      "Magnetic field lines, Magnetic field due to a magnetic dipole along its axis and perpendicular",
+      "Torque on a magnetic dipole in a uniform magnetic field",
+      "Para-, dia- and ferromagnetic substances with examples, effect of temperature on magnetic properties"
+    ]},
+    { title: "Unit 14: Electromagnetic Induction and Alternating Currents", topics: [
+      "Electromagnetic induction: Faraday's law, induced emf and current, Lenz's Law, Eddy currents",
+      "Self and mutual inductance",
+      "Alternating currents, peak and RMS value of alternating current/voltage",
+      "Reactance and impedance, LCR series circuit, resonance",
+      "Power in AC circuits, wattless current",
+      "AC generator and transformer"
+    ]},
+    { title: "Unit 15: Electromagnetic Waves", topics: [
+      "Displacement current",
+      "Electromagnetic waves and their characteristics, transverse nature",
+      "Electromagnetic spectrum: radio waves, microwaves, infrared, visible, UV, X-rays, Gamma rays",
+      "Applications of electromagnetic waves"
+    ]},
+    { title: "Unit 16: Optics", topics: [
+      "Reflection of light, spherical mirrors, mirror formula",
+      "Refraction of light at plane and spherical surfaces, thin lens formula and lens maker formula",
+      "Total internal reflection and its applications",
+      "Magnification, Power of a Lens, Combination of thin lenses in contact",
+      "Refraction of light through a prism",
+      "Microscope and Astronomical Telescope (reflecting and refracting) and their magnifying powers",
+      "Wave optics: wavefront and Huygens' principle",
+      "Laws of reflection and refraction using Huygens principle",
+      "Interference, Young's double-slit experiment, expression for fringe width, coherent sources",
+      "Diffraction due to a single slit, width of central maximum",
+      "Polarization, plane-polarized light, Brewster's law, uses of plane-polarized light and Polaroid"
+    ]},
+    { title: "Unit 17: Dual Nature of Matter and Radiation", topics: [
+      "Dual nature of radiation, Photoelectric effect",
+      "Hertz and Lenard's observations, Einstein's photoelectric equation, particle nature of light",
+      "Matter waves — wave nature of particle, de Broglie relation"
+    ]},
+    { title: "Unit 18: Atoms and Nuclei", topics: [
+      "Alpha-particle scattering experiment, Rutherford's model of atom",
+      "Bohr model, energy levels, hydrogen spectrum",
+      "Composition and size of nucleus, atomic masses",
+      "Mass-energy relation, mass defect",
+      "Binding energy per nucleon and its variation with mass number",
+      "Nuclear fission and fusion"
+    ]},
+    { title: "Unit 19: Electronic Devices", topics: [
+      "Semiconductors, semiconductor diode: I-V characteristics in forward and reverse bias",
+      "Diode as a rectifier",
+      "I-V characteristics of LED, photodiode, solar cell, and Zener diode",
+      "Zener diode as a voltage regulator",
+      "Logic gates (OR, AND, NOT, NAND and NOR)"
+    ]},
+    { title: "Unit 20: Experimental Skills", topics: [
+      "Vernier calipers — internal and external diameter and depth of a vessel",
+      "Screw gauge — thickness/diameter of thin sheet/wire",
+      "Simple Pendulum — dissipation of energy by plotting graph between square of amplitude and time",
+      "Metre Scale — mass of a given object by principle of moments",
+      "Young's modulus of elasticity of the material of a metallic wire",
+      "Surface tension of water by capillary rise and effect of detergents",
+      "Coefficient of Viscosity by measuring terminal velocity of a given spherical body",
+      "Speed of sound in air at room temperature using a resonance tube",
+      "Specific heat capacity of a given solid and liquid by method of mixtures",
+      "Resistivity of the material of a given wire using a metre bridge",
+      "Resistance of a given wire using Ohm's law",
+      "Resistance and figure of merit of a galvanometer by half deflection method",
+      "Focal length of convex mirror, concave mirror, and convex lens using parallax method",
+      "Plot of angle of deviation vs angle of incidence for a triangular prism",
+      "Refractive index of a glass slab using a travelling microscope",
+      "Characteristic curves of a p-n junction diode in forward and reverse bias",
+      "Characteristic curves of a Zener diode and finding reverse breakdown voltage",
+      "Identification of Diode, LED, Resistor, Capacitor from a mixed collection"
+    ]}
+  ],
+  chemistry: [
+    { title: "Unit 1: Some Basic Concepts in Chemistry", topics: [
+      "Matter and its nature, Dalton's atomic theory",
+      "Concept of atom, molecule, element and compound",
+      "Laws of chemical combination",
+      "Atomic and molecular masses, mole concept, molar mass, percentage composition",
+      "Empirical and molecular formulae",
+      "Chemical equations and stoichiometry"
+    ]},
+    { title: "Unit 2: Atomic Structure", topics: [
+      "Nature of electromagnetic radiation, photoelectric effect",
+      "Spectrum of the hydrogen atom",
+      "Bohr model of a hydrogen atom — postulates, derivation of energy and radii, limitations",
+      "Dual nature of matter, de Broglie's relationship",
+      "Heisenberg uncertainty principle",
+      "Quantum mechanical model of the atom, its important features",
+      "Concept of atomic orbitals as one-electron wave functions; variation of ψ and ψ² with r for 1s and 2s",
+      "Quantum numbers (principal, angular momentum, magnetic) and their significance",
+      "Shapes of s, p and d orbitals, electron spin and spin quantum number",
+      "Rules for filling electrons: Aufbau principle, Pauli's exclusion principle, Hund's rule",
+      "Electronic configuration of elements, extra stability of half-filled and completely filled orbitals"
+    ]},
+    { title: "Unit 3: Chemical Bonding and Molecular Structure", topics: [
+      "Kossel-Lewis approach to chemical bond formation, ionic and covalent bonds",
+      "Ionic Bonding: Formation, factors affecting ionic bonds, lattice enthalpy",
+      "Covalent Bonding: Electronegativity, Fajan's rule, dipole moment",
+      "VSEPR theory and shapes of simple molecules",
+      "Valence bond theory — hybridization involving s, p and d orbitals; Resonance",
+      "Molecular Orbital Theory — LCAOs, bonding and antibonding orbitals, sigma and pi bonds",
+      "Molecular orbital electronic configurations of homonuclear diatomic molecules",
+      "Concept of bond order, bond length and bond energy",
+      "Elementary idea of metallic bonding",
+      "Hydrogen bonding and its applications"
+    ]},
+    { title: "Unit 4: Chemical Thermodynamics", topics: [
+      "System and surroundings, extensive and intensive properties, state functions, types of processes",
+      "First law of thermodynamics: work, heat, internal energy and enthalpy",
+      "Heat capacity, molar heat capacity, Hess's law",
+      "Enthalpies of bond dissociation, combustion, formation, atomization, sublimation, phase transition",
+      "Enthalpies of hydration, ionization and solution",
+      "Second law of thermodynamics: spontaneity, ΔS of universe, ΔG of system",
+      "ΔG° (Standard Gibbs energy change) and equilibrium constant"
+    ]},
+    { title: "Unit 5: Solutions", topics: [
+      "Methods for expressing concentration: molality, molarity, mole fraction, percentage",
+      "Vapour pressure of solutions and Raoult's Law",
+      "Ideal and non-ideal solutions, vapour pressure-composition plots",
+      "Colligative properties: relative lowering of vapour pressure, depression of freezing point",
+      "Elevation of boiling point and osmotic pressure",
+      "Determination of molecular mass using colligative properties",
+      "Abnormal value of molar mass, van't Hoff factor and its significance"
+    ]},
+    { title: "Unit 6: Equilibrium", topics: [
+      "Meaning of equilibrium, concept of dynamic equilibrium",
+      "Equilibria involving physical processes: Solid-liquid, liquid-gas, solid-gas equilibria, Henry's law",
+      "Equilibrium involving chemical processes: Law of chemical equilibrium, Kp and Kc",
+      "Significance of ΔG and ΔG° in chemical equilibrium",
+      "Factors affecting equilibrium: concentration, pressure, temperature, catalyst; Le Chatelier's principle",
+      "Ionic equilibrium: Weak and strong electrolytes, ionization of electrolytes",
+      "Various concepts of acids and bases (Arrhenius, Bronsted-Lowry, Lewis) and their ionization",
+      "Acid-base equilibria including multistage ionization and ionization constants",
+      "Ionization of water, pH scale, common ion effect",
+      "Hydrolysis of salts and pH of their solutions",
+      "Solubility of sparingly soluble salts and solubility products, buffer solutions"
+    ]},
+    { title: "Unit 7: Redox Reactions and Electrochemistry", topics: [
+      "Electronic concepts of oxidation and reduction, redox reactions, oxidation number",
+      "Rules for assigning oxidation number, balancing of redox reactions",
+      "Electrolytic and metallic conduction, conductance in electrolytic solutions",
+      "Molar conductivities and their variation with concentration; Kohlrausch's law and applications",
+      "Electrochemical cells: Electrolytic and Galvanic cells, different types of electrodes",
+      "Electrode potentials including standard electrode potential, half-cell and cell reactions",
+      "EMF of a Galvanic cell and its measurement, Nernst equation and its applications",
+      "Relationship between cell potential and Gibbs' energy change",
+      "Dry cell and lead accumulator, Fuel cells"
+    ]},
+    { title: "Unit 8: Chemical Kinetics", topics: [
+      "Rate of a chemical reaction, factors affecting rate: concentration, temperature, pressure, catalyst",
+      "Elementary and complex reactions, order and molecularity of reactions, rate law, rate constant",
+      "Differential and integral forms of zero and first-order reactions",
+      "Characteristics and half-lives of zero and first-order reactions",
+      "Effect of temperature on rate of reactions, Arrhenius theory, activation energy",
+      "Collision theory of bimolecular gaseous reactions"
+    ]},
+    { title: "Unit 9: Classification of Elements and Periodicity in Properties", topics: [
+      "Modern periodic law and present form of the periodic table",
+      "s, p, d and f block elements",
+      "Periodic trends in atomic and ionic radii",
+      "Periodic trends in ionization enthalpy and electron gain enthalpy",
+      "Periodic trends in valence, oxidation states and chemical reactivity"
+    ]},
+    { title: "Unit 10: p-Block Elements (Group 13 to 18)", topics: [
+      "Electronic configuration and general trends in physical and chemical properties across periods",
+      "General trends in properties down the groups",
+      "Unique behaviour of the first element in each group"
+    ]},
+    { title: "Unit 11: d- and f-Block Elements", topics: [
+      "Transition Elements: General introduction, electronic configuration, occurrence and characteristics",
+      "General trends in properties of first-row transition elements: physical properties, ionization enthalpy, oxidation states, atomic radii",
+      "Colour, catalytic behaviour, magnetic properties, complex formation, interstitial compounds, alloy formation",
+      "Preparation, properties and uses of K₂Cr₂O₇ and KMnO₄",
+      "Inner Transition Elements: Lanthanoids — electronic configuration, oxidation states, lanthanoid contraction",
+      "Actinoids — electronic configuration and oxidation states"
+    ]},
+    { title: "Unit 12: Co-ordination Compounds", topics: [
+      "Introduction to coordination compounds, Werner's theory",
+      "Ligands, coordination number, denticity, chelation",
+      "IUPAC nomenclature of mononuclear co-ordination compounds",
+      "Isomerism in coordination compounds",
+      "Bonding: Valence bond approach and basic ideas of Crystal field theory",
+      "Colour and magnetic properties of coordination compounds",
+      "Importance of co-ordination compounds in qualitative analysis, extraction of metals and biological systems"
+    ]},
+    { title: "Unit 13: Purification and Characterisation of Organic Compounds", topics: [
+      "Purification — Crystallization, sublimation, distillation, differential extraction, chromatography",
+      "Qualitative analysis — Detection of nitrogen, sulphur, phosphorus and halogens",
+      "Quantitative analysis (basic principles only) — Estimation of C, H, N, halogens, S, P",
+      "Calculations of empirical formulae and molecular formulae",
+      "Numerical problems in organic quantitative analysis"
+    ]},
+    { title: "Unit 14: Some Basic Principles of Organic Chemistry", topics: [
+      "Tetravalency of carbon, shapes of simple molecules — hybridization (s and p)",
+      "Classification of organic compounds based on functional groups",
+      "Homologous series, Isomerism — structural and stereoisomerism",
+      "Nomenclature (Trivial and IUPAC)",
+      "Covalent bond fission: Homolytic and heterolytic; free radicals, carbocations and carbanions",
+      "Stability of carbocations and free radicals, electrophiles and nucleophiles",
+      "Electronic displacement: Inductive effect, electromeric effect, resonance, hyperconjugation",
+      "Common types of organic reactions: Substitution, addition, elimination and rearrangement"
+    ]},
+    { title: "Unit 15: Hydrocarbons", topics: [
+      "Classification, isomerism, IUPAC nomenclature, general methods of preparation, properties and reactions",
+      "Alkanes: Conformations (Sawhorse and Newman projections of ethane), mechanism of halogenation",
+      "Alkenes: Geometrical isomerism, mechanism of electrophilic addition",
+      "Addition of hydrogen, halogens, water, hydrogen halides (Markovnikov's and peroxide effect)",
+      "Ozonolysis and polymerization of alkenes",
+      "Alkynes: Acidic character, addition of hydrogen, halogens, water and hydrogen halides, polymerization",
+      "Aromatic hydrocarbons: Nomenclature, benzene structure and aromaticity",
+      "Mechanism of electrophilic substitution: halogenation, nitration",
+      "Friedel-Craft's alkylation and acylation, directive influence of functional group in monosubstituted benzene"
+    ]},
+    { title: "Unit 16: Organic Compounds Containing Halogens", topics: [
+      "General methods of preparation, properties and reactions",
+      "Nature of C-X bond, mechanisms of substitution reactions",
+      "Environmental effects of chloroform, iodoform, freons and DDT"
+    ]},
+    { title: "Unit 17: Organic Compounds Containing Oxygen", topics: [
+      "Alcohols: Identification of primary, secondary and tertiary alcohols; mechanism of dehydration",
+      "Phenols: Acidic nature, electrophilic substitution reactions (halogenation, nitration, sulphonation), Reimer-Tiemann reaction",
+      "Ethers: Structure",
+      "Aldehydes and Ketones: Nature of carbonyl group, nucleophilic addition to >C=O group",
+      "Relative reactivities of aldehydes and ketones; Grignard reagent",
+      "Nucleophilic addition reactions (HCN, NH₃ and its derivatives), oxidation, reduction",
+      "Acidity of α-hydrogen, aldol condensation, Cannizzaro reaction, Haloform reaction",
+      "Chemical tests to distinguish between aldehydes and ketones",
+      "Carboxylic Acids: Acidic strength and factors affecting it"
+    ]},
+    { title: "Unit 18: Organic Compounds Containing Nitrogen", topics: [
+      "Amines: Nomenclature, classification, structure, basic character",
+      "Identification of primary, secondary and tertiary amines and their basic character",
+      "Diazonium Salts: Importance in synthetic organic chemistry"
+    ]},
+    { title: "Unit 19: Biomolecules", topics: [
+      "General introduction and importance of biomolecules",
+      "Carbohydrates: Classification, aldoses and ketoses, monosaccharides (glucose and fructose)",
+      "Constituent monosaccharides of oligosaccharides (sucrose, lactose and maltose)",
+      "Proteins: Elementary idea of α-amino acids, peptide bond, polypeptides",
+      "Proteins: Primary, secondary, tertiary and quaternary structure (qualitative idea only)",
+      "Denaturation of proteins, enzymes",
+      "Vitamins: Classification and functions",
+      "Nucleic Acids: Chemical constitution of DNA and RNA, biological functions",
+      "Hormones: General introduction"
+    ]},
+    { title: "Unit 20: Principles Related to Practical Chemistry", topics: [
+      "Detection of extra elements (N, S, halogens) in organic compounds",
+      "Detection of functional groups: hydroxyl (alcoholic and phenolic), carbonyl (aldehyde and ketones), carboxyl and amino groups",
+      "Inorganic compound preparation: Mohr's salt, potash alum",
+      "Organic compound preparation: Acetanilide, p-nitro acetanilide, aniline yellow, iodoform",
+      "Titrimetric exercises: Acids, bases and indicators; oxalic acid vs KMnO₄; Mohr's salt vs KMnO₄",
+      "Qualitative salt analysis: Cations (Pb²⁺, Cu²⁺, Al³⁺, Fe³⁺, Zn²⁺, Ni²⁺, Ca²⁺, Ba²⁺, Mg²⁺, NH₄⁺)",
+      "Qualitative salt analysis: Anions (CO₃²⁻, S²⁻, SO₄²⁻, NO₃⁻, NO₂⁻, Cl⁻, Br⁻, I⁻)",
+      "Enthalpy of solution of CuSO₄, Enthalpy of neutralization of strong acid and base",
+      "Preparation of lyophilic and lyophobic sols",
+      "Kinetic study of the reaction of iodide ions with hydrogen peroxide at room temperature"
+    ]}
+  ],
+  biology: [
+    { title: "Unit 1: Diversity in Living World", topics: [
+      "What is living? Biodiversity, Need for classification, Taxonomy and Systematics",
+      "Concept of species and taxonomical hierarchy, Binomial nomenclature",
+      "Five kingdom classification",
+      "Salient features and classification of Monera, Protista and Fungi into major groups",
+      "Lichens, Viruses and Viroids",
+      "Salient features and classification of plants: Algae, Bryophytes, Pteridophytes, Gymnosperms (3–5 features and 2 examples each)",
+      "Salient features and classification of animals: non-chordates up to phyla level and chordates up to classes level"
+    ]},
+    { title: "Unit 2: Structural Organisation in Animals and Plants", topics: [
+      "Morphology and modifications, Tissues",
+      "Anatomy and functions of root, stem, leaf, inflorescence (cymose and racemose), flower, fruit and seed",
+      "Plant families: Malvaceae, Cruciferae, Leguminosae, Compositae, Graminae",
+      "Animal tissues",
+      "Morphology, anatomy and functions of digestive, circulatory, respiratory, nervous and reproductive systems of Frog"
+    ]},
+    { title: "Unit 3: Cell Structure and Function", topics: [
+      "Cell theory and cell as the basic unit of life",
+      "Structure of prokaryotic and eukaryotic cell; Plant cell and animal cell",
+      "Cell envelope, cell membrane, cell wall",
+      "Cell organelles — structure and function; Endomembrane system (ER, Golgi bodies, lysosomes, vacuoles)",
+      "Mitochondria, ribosomes, plastids, micro bodies",
+      "Cytoskeleton, cilia, flagella, centrioles (ultrastructure and function)",
+      "Nucleus — nuclear membrane, chromatin, nucleolus",
+      "Biomolecules — structure and function of proteins, carbohydrates, lipids, nucleic acids",
+      "Enzymes — types, properties, enzyme action, classification and nomenclature",
+      "Cell division: Cell cycle, mitosis, meiosis and their significance"
+    ]},
+    { title: "Unit 4: Plant Physiology", topics: [
+      "Photosynthesis as autotrophic nutrition, site of photosynthesis, pigments involved (elementary idea)",
+      "Photochemical and biosynthetic phases of photosynthesis",
+      "Cyclic and non-cyclic photophosphorylation, Chemiosmotic hypothesis",
+      "Photorespiration, C₃ and C₄ pathways, Factors affecting photosynthesis",
+      "Respiration: Exchange of gases, cellular respiration — glycolysis, fermentation (anaerobic)",
+      "TCA cycle and electron transport system (aerobic), Energy relations — ATP molecules generated",
+      "Amphibolic pathways, Respiratory quotient",
+      "Plant growth and development: Seed germination, phases of plant growth and plant growth rate",
+      "Conditions of growth, differentiation, dedifferentiation and redifferentiation",
+      "Growth regulators: auxin, gibberellin, cytokinin, ethylene, ABA"
+    ]},
+    { title: "Unit 5: Human Physiology", topics: [
+      "Breathing and Respiration: Respiratory system in humans, mechanism of breathing and its regulation",
+      "Exchange of gases, transport of gases, regulation of respiration, respiratory volumes",
+      "Disorders: Asthma, Emphysema, Occupational respiratory disorders",
+      "Body fluids and circulation: Composition of blood, blood groups, coagulation of blood",
+      "Composition of lymph and its function, Human circulatory system, cardiac cycle, cardiac output, ECG",
+      "Double circulation, regulation of cardiac activity",
+      "Circulatory disorders: Hypertension, Coronary artery disease, Angina pectoris, Heart failure",
+      "Excretory products and elimination: Modes of excretion — ammonotelism, ureotelism, uricotelism",
+      "Human excretory system — structure and function, Urine formation, Osmoregulation",
+      "Regulation of kidney function: Renin-angiotensin, ANF, ADH and Diabetes insipidus",
+      "Disorders: Uraemia, Renal failure, Renal calculi, Nephritis; Dialysis and artificial kidney",
+      "Locomotion and Movement: Skeletal muscle, contractile proteins and muscle contraction",
+      "Skeletal system and its functions, Joints",
+      "Disorders: Myasthenia gravis, Tetany, Muscular dystrophy, Arthritis, Osteoporosis, Gout",
+      "Neural control and coordination: Neuron and nerves, Central, peripheral and visceral nervous system",
+      "Generation and conduction of nerve impulse",
+      "Chemical coordination and regulation: Endocrine glands and hormones",
+      "Human endocrine system: Hypothalamus, Pituitary, Pineal, Thyroid, Parathyroid, Adrenal, Pancreas, Gonads",
+      "Mechanism of hormone action, Role of hormones as messengers and regulators",
+      "Hypo- and hyperactivity disorders: Dwarfism, Acromegaly, Cretinism, goiter, diabetes, Addison's disease"
+    ]},
+    { title: "Unit 6: Reproduction", topics: [
+      "Sexual reproduction in flowering plants: Flower structure, development of male and female gametophytes",
+      "Pollination — types, agencies and examples; Outbreeding devices; Pollen-Pistil interaction",
+      "Double fertilization; Post fertilization events — development of endosperm and embryo, seed and fruit",
+      "Special modes: Apomixis, parthenocarpy, polyembryony; Significance of seed and fruit formation",
+      "Human Reproduction: Male and female reproductive systems",
+      "Microscopic anatomy of testis and ovary; Gametogenesis — spermatogenesis and oogenesis",
+      "Menstrual cycle; Fertilisation, embryo development up to blastocyst formation, implantation",
+      "Pregnancy and placenta formation, Parturition, Lactation (elementary idea)",
+      "Reproductive health: Need for reproductive health, prevention of STDs",
+      "Birth control — need and methods, contraception and Medical Termination of Pregnancy (MTP)",
+      "Amniocentesis; Infertility and assisted reproductive technologies — IVF, ZIFT, GIFT"
+    ]},
+    { title: "Unit 7: Genetics and Evolution", topics: [
+      "Mendelian Inheritance; Deviations: Incomplete dominance, Co-dominance, Multiple alleles",
+      "Inheritance of blood groups, Pleiotropy, Elementary idea of polygenic inheritance",
+      "Chromosome theory of inheritance; Chromosomes and genes",
+      "Sex determination in humans, birds and honey bee",
+      "Linkage and crossing over; Sex linked inheritance — Haemophilia, Colour blindness",
+      "Mendelian disorders: Thalassemia; Chromosomal disorders: Down's syndrome, Turner's, Klinefelter's syndromes",
+      "Molecular basis of Inheritance: DNA as genetic material, Structure of DNA and RNA",
+      "DNA packaging, DNA replication, Central dogma",
+      "Transcription, genetic code, translation",
+      "Gene expression and regulation — Lac Operon",
+      "Genome and Human Genome Project, DNA fingerprinting, protein biosynthesis",
+      "Evolution: Origin of life, Biological evolution and evidences (paleontology, anatomy, embryology, molecular)",
+      "Darwin's contribution, Modern Synthetic theory of Evolution",
+      "Mechanism of evolution: Variation (mutation and recombination) and Natural Selection with examples",
+      "Types of natural selection; Gene flow and genetic drift; Hardy-Weinberg's principle",
+      "Adaptive Radiation; Human evolution"
+    ]},
+    { title: "Unit 8: Biology and Human Welfare", topics: [
+      "Health and Disease; Pathogens and parasites causing human diseases",
+      "Malaria, Filariasis, Ascariasis, Typhoid, Pneumonia, common cold, amoebiasis, ring worm",
+      "Dengue, chikungunya",
+      "Basic concepts of immunology — vaccines",
+      "Cancer, HIV and AIDS",
+      "Adolescence, drug and alcohol abuse, tobacco abuse",
+      "Microbes in household food processing and industrial production",
+      "Microbes in sewage treatment, energy generation",
+      "Microbes as biocontrol agents and biofertilizers"
+    ]},
+    { title: "Unit 9: Biotechnology and Its Applications", topics: [
+      "Principles and process of Biotechnology: Genetic engineering (Recombinant DNA technology)",
+      "Application in health: Human insulin and vaccine production, gene therapy",
+      "Genetically modified organisms — Bt crops",
+      "Transgenic Animals",
+      "Biosafety issues — Biopiracy and patents"
+    ]},
+    { title: "Unit 10: Ecology and Environment", topics: [
+      "Organisms and environment; Population interactions: mutualism, competition, predation, parasitism",
+      "Population attributes: growth, birth rate and death rate, age distribution",
+      "Ecosystem: Patterns, components, productivity and decomposition",
+      "Energy flow, Pyramids of number, biomass, energy",
+      "Biodiversity: Concept, Patterns of Biodiversity, Importance of Biodiversity",
+      "Loss of Biodiversity, Biodiversity conservation",
+      "Hotspots, endangered organisms, extinction, Red Data Book",
+      "Biosphere reserves, National parks and sanctuaries, Sacred Groves"
+    ]}
+  ]
+};
+
+const STORAGE_KEY = 'neet2026_tracker_v1';
+let state = {};
+
+function loadState() {
+  try {
+    const s = localStorage.getItem(STORAGE_KEY);
+    return s ? JSON.parse(s) : {};
+  } catch(e) { return {}; }
+}
+
+function saveState() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {}
+}
+
+function getKey(subj, ui, ti) { return `${subj}_${ui}_${ti}`; }
+
+function buildPanels() {
+  const subjects = ['physics','chemistry','biology'];
+  subjects.forEach(subj => {
+    const panel = document.getElementById('panel-' + subj);
+    const cls = subj === 'physics' ? 'p' : subj === 'chemistry' ? 'c' : 'b';
+    panel.innerHTML = '';
+
+    SYLLABUS[subj].forEach((unit, ui) => {
+      const card = document.createElement('div');
+      card.className = `unit-card ${cls}`;
+      card.id = `unit_${subj}_${ui}`;
+
+      const total = unit.topics.length;
+      const done = unit.topics.filter((_,ti) => state[getKey(subj,ui,ti)]).length;
+
+      card.innerHTML = `
+        <div class="unit-header" onclick="toggleUnit(this)">
+          <div class="unit-num">${ui+1}</div>
+          <div class="unit-title">${unit.title}</div>
+          <div class="unit-right">
+            <div class="mini-bar-wrap"><div class="mini-bar-fill" id="mb_${subj}_${ui}" style="width:${total?Math.round(done/total*100):0}%"></div></div>
+            <span class="unit-count" id="uc_${subj}_${ui}">${done}/${total}</span>
+          </div>
+          <span class="chevron">&#9654;</span>
+        </div>
+        <div class="topics-list" id="tl_${subj}_${ui}">
+          <div class="select-all-row">
+            <button class="select-all-btn" onclick="toggleAll('${subj}',${ui},event)">Select all</button>
+          </div>
+          ${unit.topics.map((t,ti) => `
+            <div class="topic-row">
+              <input type="checkbox" id="cb_${subj}_${ui}_${ti}" ${state[getKey(subj,ui,ti)] ? 'checked' : ''}
+                onchange="onCheck('${subj}',${ui},${ti},this.checked)">
+              <label class="topic-text ${state[getKey(subj,ui,ti)] ? 'done' : ''}" for="cb_${subj}_${ui}_${ti}">${t}</label>
+            </div>`).join('')}
+        </div>`;
+      panel.appendChild(card);
+    });
+  });
+  updateStats();
+}
+
+function toggleUnit(header) {
+  const chevron = header.querySelector('.chevron');
+  const id = header.parentElement.id;
+  const parts = id.split('_');
+  const subj = parts[1], ui = parts[2];
+  const list = document.getElementById(`tl_${subj}_${ui}`);
+  const isOpen = list.classList.toggle('open');
+  chevron.classList.toggle('open', isOpen);
+  header.classList.toggle('open', isOpen);
+}
+
+function onCheck(subj, ui, ti, checked) {
+  const key = getKey(subj, ui, ti);
+  if (checked) state[key] = true; else delete state[key];
+  saveState();
+  const label = document.querySelector(`label[for="cb_${subj}_${ui}_${ti}"]`);
+  if (label) label.classList.toggle('done', checked);
+  updateUnitBar(subj, ui);
+  updateStats();
+}
+
+function toggleAll(subj, ui, e) {
+  e.stopPropagation();
+  const unit = SYLLABUS[subj][ui];
+  const allDone = unit.topics.every((_,ti) => state[getKey(subj,ui,ti)]);
+  unit.topics.forEach((_,ti) => {
+    const key = getKey(subj,ui,ti);
+    const cb = document.getElementById(`cb_${subj}_${ui}_${ti}`);
+    const lbl = document.querySelector(`label[for="cb_${subj}_${ui}_${ti}"]`);
+    if (allDone) { delete state[key]; if(cb) cb.checked=false; if(lbl) lbl.classList.remove('done'); }
+    else { state[key]=true; if(cb) cb.checked=true; if(lbl) lbl.classList.add('done'); }
+  });
+  saveState();
+  updateUnitBar(subj, ui);
+  updateStats();
+}
+
+function updateUnitBar(subj, ui) {
+  const unit = SYLLABUS[subj][ui];
+  const total = unit.topics.length;
+  const done = unit.topics.filter((_,ti) => state[getKey(subj,ui,ti)]).length;
+  const mb = document.getElementById(`mb_${subj}_${ui}`);
+  const uc = document.getElementById(`uc_${subj}_${ui}`);
+  if (mb) mb.style.width = (total ? Math.round(done/total*100) : 0) + '%';
+  if (uc) uc.textContent = `${done}/${total}`;
+}
+
+function updateStats() {
+  let grandTotal = 0, grandDone = 0;
+  const subjects = ['physics','chemistry','biology'];
+  const stats = subjects.map(subj => {
+    let t=0, d=0;
+    SYLLABUS[subj].forEach((unit,ui) => {
+      unit.topics.forEach((_,ti) => { t++; if(state[getKey(subj,ui,ti)]) d++; });
+    });
+    grandTotal += t; grandDone += d;
+    return {subj, t, d, pct: t ? Math.round(d/t*100) : 0};
+  });
+
+  // overall bar
+  const pct = grandTotal ? Math.round(grandDone/grandTotal*100) : 0;
+  document.getElementById('overall-fill').style.width = pct + '%';
+  document.getElementById('overall-label').textContent = `${grandDone} / ${grandTotal}`;
+
+  // subject stats row
+  const activePanel = document.querySelector('.subject-panel.active');
+  const subjName = activePanel ? activePanel.id.replace('panel-','') : 'physics';
+  const info = stats.find(s => s.subj === subjName);
+  if (info) {
+    document.getElementById('stats-row').innerHTML = `
+      <div class="stat-box">Done: <b>${info.d}</b> topics</div>
+      <div class="stat-box">Remaining: <b>${info.t - info.d}</b> topics</div>
+      <div class="stat-box">Progress: <b>${info.pct}%</b></div>
+      <div class="stat-box">Total: <b>${info.t}</b> topics</div>`;
+  }
+}
+
+function switchTab(subj, btn, cls) {
+  document.querySelectorAll('.tab').forEach(t => t.className = 'tab');
+  btn.classList.add(cls);
+  document.querySelectorAll('.subject-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + subj).classList.add('active');
+  updateStats();
+}
+
+function resetAll() {
+  if (!confirm('Reset all progress? This cannot be undone.')) return;
+  state = {};
+  saveState();
+  buildPanels();
+}
+
+// Init
+state = loadState();
+buildPanels();
+</script>
+</body>
+</html>
