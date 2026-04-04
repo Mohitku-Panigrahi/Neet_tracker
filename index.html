@@ -199,6 +199,28 @@
   .b .mini-bar-fill { background: var(--biology); }
   .b input[type="checkbox"] { accent-color: var(--biology); }
 
+  /* ── WEIGHTAGE BADGE ── */
+  .wt-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 9px;
+    border-radius: 20px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    letter-spacing: 0.2px;
+  }
+  .wt-high   { background: #fff0e6; color: #c0440a; border: 1px solid #f5c9a8; }
+  .wt-medium { background: #fffbe6; color: #8a6800; border: 1px solid #f0d98a; }
+  .wt-low    { background: #edf7f0; color: #2a6644; border: 1px solid #a8d9bc; }
+
+  /* ── LEGEND ── */
+  .legend { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; align-items: center; }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--muted); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .ld-high   { background: #c0440a; }
+  .ld-medium { background: #8a6800; }
+  .ld-low    { background: #2a6644; }
+
   /* reset button */
   .reset-btn {
     font-size: 12px; color: #999;
@@ -213,6 +235,8 @@
     .content, .tabs-wrap { padding: 0 12px; }
     .unit-header { padding: 12px 14px; }
     .topics-list { padding: 6px 14px 12px; }
+    .mini-bar-wrap { display: none; }
+    .unit-count { display: none; }
   }
 </style>
 </head>
@@ -244,6 +268,12 @@
 
 <div class="content">
   <div class="stats-row" id="stats-row"></div>
+  <div class="legend">
+    <span style="font-size:12px;color:var(--muted);font-weight:500;">Weightage:</span>
+    <span class="legend-item"><span class="legend-dot ld-high"></span> High (3–5+ Q)</span>
+    <span class="legend-item"><span class="legend-dot ld-medium"></span> Medium (2–3 Q)</span>
+    <span class="legend-item"><span class="legend-dot ld-low"></span> Low (0–1 Q)</span>
+  </div>
 
   <!-- PHYSICS -->
   <div id="panel-physics" class="subject-panel active" data-subject="p"></div>
@@ -258,7 +288,7 @@
 <script>
 const SYLLABUS = {
   physics: [
-    { title: "Unit 1: Physics and Measurement", topics: [
+    { title: "Unit 1: Physics and Measurement", weight: {q:"1–2 Q", level:"low"}, topics: [
       "Units of measurements, System of Units, SI Units",
       "Fundamental and derived units",
       "Least count and significant figures",
@@ -266,7 +296,7 @@ const SYLLABUS = {
       "Dimensions of physical quantities",
       "Dimensional analysis and its applications"
     ]},
-    { title: "Unit 2: Kinematics", topics: [
+    { title: "Unit 2: Kinematics", weight: {q:"3–4 Q", level:"high"}, topics: [
       "Frame of reference, motion in a straight line",
       "Position-time graph, speed and velocity",
       "Uniform and non-uniform motion, average speed and instantaneous velocity",
@@ -277,7 +307,7 @@ const SYLLABUS = {
       "Motion in a plane, Projectile Motion",
       "Uniform Circular Motion"
     ]},
-    { title: "Unit 3: Laws of Motion", topics: [
+    { title: "Unit 3: Laws of Motion", weight: {q:"3–4 Q", level:"high"}, topics: [
       "Force and inertia, Newton's First Law of motion",
       "Momentum, Newton's Second Law of motion, Impulse",
       "Newton's Third Law of motion",
@@ -287,7 +317,7 @@ const SYLLABUS = {
       "Centripetal force and its applications: vehicle on level circular road",
       "Vehicle on a banked road"
     ]},
-    { title: "Unit 4: Work, Energy and Power", topics: [
+    { title: "Unit 4: Work, Energy and Power", weight: {q:"2–3 Q", level:"high"}, topics: [
       "Work done by a constant force and a variable force",
       "Kinetic and potential energies, work-energy theorem, power",
       "Potential energy of spring, conservation of mechanical energy",
@@ -295,7 +325,7 @@ const SYLLABUS = {
       "Motion in a vertical circle",
       "Elastic and inelastic collisions in one and two dimensions"
     ]},
-    { title: "Unit 5: Rotational Motion", topics: [
+    { title: "Unit 5: Rotational Motion", weight: {q:"2–3 Q", level:"high"}, topics: [
       "Centre of mass of a two-particle system and a rigid body",
       "Basic concepts of rotational motion, moment of a force, torque",
       "Angular momentum and conservation of angular momentum",
@@ -305,7 +335,7 @@ const SYLLABUS = {
       "Equilibrium of rigid bodies, rigid body rotation and equations of rotational motion",
       "Comparison of linear and rotational motions"
     ]},
-    { title: "Unit 6: Gravitation", topics: [
+    { title: "Unit 6: Gravitation", weight: {q:"1–2 Q", level:"medium"}, topics: [
       "Universal law of gravitation",
       "Acceleration due to gravity and its variation with altitude and depth",
       "Kepler's laws of planetary motion",
@@ -313,7 +343,7 @@ const SYLLABUS = {
       "Escape velocity",
       "Motion of a satellite, orbital velocity, time period and energy of satellite"
     ]},
-    { title: "Unit 7: Properties of Solids and Liquids", topics: [
+    { title: "Unit 7: Properties of Solids and Liquids", weight: {q:"2–3 Q", level:"medium"}, topics: [
       "Elastic behaviour, Stress-strain relationship, Hooke's Law",
       "Young's modulus, bulk modulus, modulus of rigidity",
       "Pressure due to a fluid column, Pascal's law and its applications",
@@ -326,13 +356,13 @@ const SYLLABUS = {
       "Change of state, latent heat",
       "Heat transfer — conduction, convection and radiation"
     ]},
-    { title: "Unit 8: Thermodynamics", topics: [
+    { title: "Unit 8: Thermodynamics", weight: {q:"2–3 Q", level:"medium"}, topics: [
       "Thermal equilibrium, Zeroth law of thermodynamics, concept of temperature",
       "Heat, work and internal energy",
       "First law of thermodynamics, isothermal and adiabatic processes",
       "Second law of thermodynamics: reversible and irreversible processes"
     ]},
-    { title: "Unit 9: Kinetic Theory of Gases", topics: [
+    { title: "Unit 9: Kinetic Theory of Gases", weight: {q:"1–2 Q", level:"medium"}, topics: [
       "Equation of state of a perfect gas, work done on compressing a gas",
       "Kinetic theory of gases — assumptions, concept of pressure",
       "Kinetic interpretation of temperature, RMS speed of gas molecules",
@@ -340,7 +370,7 @@ const SYLLABUS = {
       "Applications to specific heat capacities of gases",
       "Mean free path, Avogadro's number"
     ]},
-    { title: "Unit 10: Oscillations and Waves", topics: [
+    { title: "Unit 10: Oscillations and Waves", weight: {q:"2–3 Q", level:"medium"}, topics: [
       "Oscillations and periodic motion — time period, frequency, displacement",
       "Simple harmonic motion (SHM) and its equation, phase",
       "Oscillations of a spring — restoring force and force constant, energy in SHM",
@@ -351,7 +381,7 @@ const SYLLABUS = {
       "Standing waves in strings and organ pipes, fundamental mode and harmonics",
       "Beats"
     ]},
-    { title: "Unit 11: Electrostatics", topics: [
+    { title: "Unit 11: Electrostatics", weight: {q:"3–4 Q", level:"high"}, topics: [
       "Electric charges, conservation of charge, Coulomb's law",
       "Forces between multiple charges: superposition principle and continuous charge distribution",
       "Electric field due to a point charge, Electric field lines",
@@ -365,7 +395,7 @@ const SYLLABUS = {
       "Capacitance of a parallel plate capacitor with and without dielectric",
       "Energy stored in a capacitor"
     ]},
-    { title: "Unit 12: Current Electricity", topics: [
+    { title: "Unit 12: Current Electricity", weight: {q:"3–4 Q", level:"high"}, topics: [
       "Electric current, drift velocity, mobility and their relation with electric current",
       "Ohm's law, Electrical resistance, V-I characteristics",
       "Electrical energy and power, Electrical resistivity and conductivity",
@@ -375,7 +405,7 @@ const SYLLABUS = {
       "Kirchhoff's laws and their applications",
       "Wheatstone bridge, Metre Bridge"
     ]},
-    { title: "Unit 13: Magnetic Effects of Current and Magnetism", topics: [
+    { title: "Unit 13: Magnetic Effects of Current and Magnetism", weight: {q:"2–3 Q", level:"medium"}, topics: [
       "Biot-Savart law and its application to current-carrying circular loop",
       "Ampere's law and its applications to infinitely long straight wire and solenoid",
       "Force on a moving charge in uniform magnetic and electric fields",
@@ -388,7 +418,7 @@ const SYLLABUS = {
       "Torque on a magnetic dipole in a uniform magnetic field",
       "Para-, dia- and ferromagnetic substances with examples, effect of temperature on magnetic properties"
     ]},
-    { title: "Unit 14: Electromagnetic Induction and Alternating Currents", topics: [
+    { title: "Unit 14: Electromagnetic Induction and Alternating Currents", weight: {q:"2–3 Q", level:"medium"}, topics: [
       "Electromagnetic induction: Faraday's law, induced emf and current, Lenz's Law, Eddy currents",
       "Self and mutual inductance",
       "Alternating currents, peak and RMS value of alternating current/voltage",
@@ -396,13 +426,13 @@ const SYLLABUS = {
       "Power in AC circuits, wattless current",
       "AC generator and transformer"
     ]},
-    { title: "Unit 15: Electromagnetic Waves", topics: [
+    { title: "Unit 15: Electromagnetic Waves", weight: {q:"1 Q", level:"low"}, topics: [
       "Displacement current",
       "Electromagnetic waves and their characteristics, transverse nature",
       "Electromagnetic spectrum: radio waves, microwaves, infrared, visible, UV, X-rays, Gamma rays",
       "Applications of electromagnetic waves"
     ]},
-    { title: "Unit 16: Optics", topics: [
+    { title: "Unit 16: Optics", weight: {q:"3–4 Q", level:"high"}, topics: [
       "Reflection of light, spherical mirrors, mirror formula",
       "Refraction of light at plane and spherical surfaces, thin lens formula and lens maker formula",
       "Total internal reflection and its applications",
@@ -415,12 +445,12 @@ const SYLLABUS = {
       "Diffraction due to a single slit, width of central maximum",
       "Polarization, plane-polarized light, Brewster's law, uses of plane-polarized light and Polaroid"
     ]},
-    { title: "Unit 17: Dual Nature of Matter and Radiation", topics: [
+    { title: "Unit 17: Dual Nature of Matter and Radiation", weight: {q:"1–2 Q", level:"high"}, topics: [
       "Dual nature of radiation, Photoelectric effect",
       "Hertz and Lenard's observations, Einstein's photoelectric equation, particle nature of light",
       "Matter waves — wave nature of particle, de Broglie relation"
     ]},
-    { title: "Unit 18: Atoms and Nuclei", topics: [
+    { title: "Unit 18: Atoms and Nuclei", weight: {q:"2–3 Q", level:"high"}, topics: [
       "Alpha-particle scattering experiment, Rutherford's model of atom",
       "Bohr model, energy levels, hydrogen spectrum",
       "Composition and size of nucleus, atomic masses",
@@ -428,14 +458,14 @@ const SYLLABUS = {
       "Binding energy per nucleon and its variation with mass number",
       "Nuclear fission and fusion"
     ]},
-    { title: "Unit 19: Electronic Devices", topics: [
+    { title: "Unit 19: Electronic Devices", weight: {q:"1–2 Q", level:"high"}, topics: [
       "Semiconductors, semiconductor diode: I-V characteristics in forward and reverse bias",
       "Diode as a rectifier",
       "I-V characteristics of LED, photodiode, solar cell, and Zener diode",
       "Zener diode as a voltage regulator",
       "Logic gates (OR, AND, NOT, NAND and NOR)"
     ]},
-    { title: "Unit 20: Experimental Skills", topics: [
+    { title: "Unit 20: Experimental Skills", weight: {q:"1 Q", level:"low"}, topics: [
       "Vernier calipers — internal and external diameter and depth of a vessel",
       "Screw gauge — thickness/diameter of thin sheet/wire",
       "Simple Pendulum — dissipation of energy by plotting graph between square of amplitude and time",
@@ -457,7 +487,7 @@ const SYLLABUS = {
     ]}
   ],
   chemistry: [
-    { title: "Unit 1: Some Basic Concepts in Chemistry", topics: [
+    { title: "Unit 1: Some Basic Concepts in Chemistry", weight: {q:"1 Q", level:"low"}, topics: [
       "Matter and its nature, Dalton's atomic theory",
       "Concept of atom, molecule, element and compound",
       "Laws of chemical combination",
@@ -465,7 +495,7 @@ const SYLLABUS = {
       "Empirical and molecular formulae",
       "Chemical equations and stoichiometry"
     ]},
-    { title: "Unit 2: Atomic Structure", topics: [
+    { title: "Unit 2: Atomic Structure", weight: {q:"1–2 Q", level:"medium"}, topics: [
       "Nature of electromagnetic radiation, photoelectric effect",
       "Spectrum of the hydrogen atom",
       "Bohr model of a hydrogen atom — postulates, derivation of energy and radii, limitations",
@@ -478,7 +508,7 @@ const SYLLABUS = {
       "Rules for filling electrons: Aufbau principle, Pauli's exclusion principle, Hund's rule",
       "Electronic configuration of elements, extra stability of half-filled and completely filled orbitals"
     ]},
-    { title: "Unit 3: Chemical Bonding and Molecular Structure", topics: [
+    { title: "Unit 3: Chemical Bonding and Molecular Structure", weight: {q:"2–4 Q", level:"high"}, topics: [
       "Kossel-Lewis approach to chemical bond formation, ionic and covalent bonds",
       "Ionic Bonding: Formation, factors affecting ionic bonds, lattice enthalpy",
       "Covalent Bonding: Electronegativity, Fajan's rule, dipole moment",
@@ -490,7 +520,7 @@ const SYLLABUS = {
       "Elementary idea of metallic bonding",
       "Hydrogen bonding and its applications"
     ]},
-    { title: "Unit 4: Chemical Thermodynamics", topics: [
+    { title: "Unit 4: Chemical Thermodynamics", weight: {q:"3–4 Q", level:"high"}, topics: [
       "System and surroundings, extensive and intensive properties, state functions, types of processes",
       "First law of thermodynamics: work, heat, internal energy and enthalpy",
       "Heat capacity, molar heat capacity, Hess's law",
@@ -499,7 +529,7 @@ const SYLLABUS = {
       "Second law of thermodynamics: spontaneity, ΔS of universe, ΔG of system",
       "ΔG° (Standard Gibbs energy change) and equilibrium constant"
     ]},
-    { title: "Unit 5: Solutions", topics: [
+    { title: "Unit 5: Solutions", weight: {q:"2–3 Q", level:"high"}, topics: [
       "Methods for expressing concentration: molality, molarity, mole fraction, percentage",
       "Vapour pressure of solutions and Raoult's Law",
       "Ideal and non-ideal solutions, vapour pressure-composition plots",
@@ -508,7 +538,7 @@ const SYLLABUS = {
       "Determination of molecular mass using colligative properties",
       "Abnormal value of molar mass, van't Hoff factor and its significance"
     ]},
-    { title: "Unit 6: Equilibrium", topics: [
+    { title: "Unit 6: Equilibrium", weight: {q:"2–3 Q", level:"high"}, topics: [
       "Meaning of equilibrium, concept of dynamic equilibrium",
       "Equilibria involving physical processes: Solid-liquid, liquid-gas, solid-gas equilibria, Henry's law",
       "Equilibrium involving chemical processes: Law of chemical equilibrium, Kp and Kc",
@@ -521,7 +551,7 @@ const SYLLABUS = {
       "Hydrolysis of salts and pH of their solutions",
       "Solubility of sparingly soluble salts and solubility products, buffer solutions"
     ]},
-    { title: "Unit 7: Redox Reactions and Electrochemistry", topics: [
+    { title: "Unit 7: Redox Reactions and Electrochemistry", weight: {q:"2 Q", level:"medium"}, topics: [
       "Electronic concepts of oxidation and reduction, redox reactions, oxidation number",
       "Rules for assigning oxidation number, balancing of redox reactions",
       "Electrolytic and metallic conduction, conductance in electrolytic solutions",
@@ -532,7 +562,7 @@ const SYLLABUS = {
       "Relationship between cell potential and Gibbs' energy change",
       "Dry cell and lead accumulator, Fuel cells"
     ]},
-    { title: "Unit 8: Chemical Kinetics", topics: [
+    { title: "Unit 8: Chemical Kinetics", weight: {q:"1–2 Q", level:"medium"}, topics: [
       "Rate of a chemical reaction, factors affecting rate: concentration, temperature, pressure, catalyst",
       "Elementary and complex reactions, order and molecularity of reactions, rate law, rate constant",
       "Differential and integral forms of zero and first-order reactions",
@@ -540,19 +570,19 @@ const SYLLABUS = {
       "Effect of temperature on rate of reactions, Arrhenius theory, activation energy",
       "Collision theory of bimolecular gaseous reactions"
     ]},
-    { title: "Unit 9: Classification of Elements and Periodicity in Properties", topics: [
+    { title: "Unit 9: Classification of Elements and Periodicity in Properties", weight: {q:"1–2 Q", level:"low"}, topics: [
       "Modern periodic law and present form of the periodic table",
       "s, p, d and f block elements",
       "Periodic trends in atomic and ionic radii",
       "Periodic trends in ionization enthalpy and electron gain enthalpy",
       "Periodic trends in valence, oxidation states and chemical reactivity"
     ]},
-    { title: "Unit 10: p-Block Elements (Group 13 to 18)", topics: [
+    { title: "Unit 10: p-Block Elements (Group 13 to 18)", weight: {q:"2–3 Q", level:"medium"}, topics: [
       "Electronic configuration and general trends in physical and chemical properties across periods",
       "General trends in properties down the groups",
       "Unique behaviour of the first element in each group"
     ]},
-    { title: "Unit 11: d- and f-Block Elements", topics: [
+    { title: "Unit 11: d- and f-Block Elements", weight: {q:"2 Q", level:"medium"}, topics: [
       "Transition Elements: General introduction, electronic configuration, occurrence and characteristics",
       "General trends in properties of first-row transition elements: physical properties, ionization enthalpy, oxidation states, atomic radii",
       "Colour, catalytic behaviour, magnetic properties, complex formation, interstitial compounds, alloy formation",
@@ -560,7 +590,7 @@ const SYLLABUS = {
       "Inner Transition Elements: Lanthanoids — electronic configuration, oxidation states, lanthanoid contraction",
       "Actinoids — electronic configuration and oxidation states"
     ]},
-    { title: "Unit 12: Co-ordination Compounds", topics: [
+    { title: "Unit 12: Co-ordination Compounds", weight: {q:"4–5 Q", level:"high"}, topics: [
       "Introduction to coordination compounds, Werner's theory",
       "Ligands, coordination number, denticity, chelation",
       "IUPAC nomenclature of mononuclear co-ordination compounds",
@@ -569,14 +599,14 @@ const SYLLABUS = {
       "Colour and magnetic properties of coordination compounds",
       "Importance of co-ordination compounds in qualitative analysis, extraction of metals and biological systems"
     ]},
-    { title: "Unit 13: Purification and Characterisation of Organic Compounds", topics: [
+    { title: "Unit 13: Purification and Characterisation of Organic Compounds", weight: {q:"1 Q", level:"low"}, topics: [
       "Purification — Crystallization, sublimation, distillation, differential extraction, chromatography",
       "Qualitative analysis — Detection of nitrogen, sulphur, phosphorus and halogens",
       "Quantitative analysis (basic principles only) — Estimation of C, H, N, halogens, S, P",
       "Calculations of empirical formulae and molecular formulae",
       "Numerical problems in organic quantitative analysis"
     ]},
-    { title: "Unit 14: Some Basic Principles of Organic Chemistry", topics: [
+    { title: "Unit 14: Some Basic Principles of Organic Chemistry", weight: {q:"2–3 Q", level:"medium"}, topics: [
       "Tetravalency of carbon, shapes of simple molecules — hybridization (s and p)",
       "Classification of organic compounds based on functional groups",
       "Homologous series, Isomerism — structural and stereoisomerism",
@@ -586,7 +616,7 @@ const SYLLABUS = {
       "Electronic displacement: Inductive effect, electromeric effect, resonance, hyperconjugation",
       "Common types of organic reactions: Substitution, addition, elimination and rearrangement"
     ]},
-    { title: "Unit 15: Hydrocarbons", topics: [
+    { title: "Unit 15: Hydrocarbons", weight: {q:"1–2 Q", level:"medium"}, topics: [
       "Classification, isomerism, IUPAC nomenclature, general methods of preparation, properties and reactions",
       "Alkanes: Conformations (Sawhorse and Newman projections of ethane), mechanism of halogenation",
       "Alkenes: Geometrical isomerism, mechanism of electrophilic addition",
@@ -597,12 +627,12 @@ const SYLLABUS = {
       "Mechanism of electrophilic substitution: halogenation, nitration",
       "Friedel-Craft's alkylation and acylation, directive influence of functional group in monosubstituted benzene"
     ]},
-    { title: "Unit 16: Organic Compounds Containing Halogens", topics: [
+    { title: "Unit 16: Organic Compounds Containing Halogens", weight: {q:"1 Q", level:"low"}, topics: [
       "General methods of preparation, properties and reactions",
       "Nature of C-X bond, mechanisms of substitution reactions",
       "Environmental effects of chloroform, iodoform, freons and DDT"
     ]},
-    { title: "Unit 17: Organic Compounds Containing Oxygen", topics: [
+    { title: "Unit 17: Organic Compounds Containing Oxygen", weight: {q:"2 Q", level:"medium"}, topics: [
       "Alcohols: Identification of primary, secondary and tertiary alcohols; mechanism of dehydration",
       "Phenols: Acidic nature, electrophilic substitution reactions (halogenation, nitration, sulphonation), Reimer-Tiemann reaction",
       "Ethers: Structure",
@@ -613,12 +643,12 @@ const SYLLABUS = {
       "Chemical tests to distinguish between aldehydes and ketones",
       "Carboxylic Acids: Acidic strength and factors affecting it"
     ]},
-    { title: "Unit 18: Organic Compounds Containing Nitrogen", topics: [
+    { title: "Unit 18: Organic Compounds Containing Nitrogen", weight: {q:"1 Q", level:"low"}, topics: [
       "Amines: Nomenclature, classification, structure, basic character",
       "Identification of primary, secondary and tertiary amines and their basic character",
       "Diazonium Salts: Importance in synthetic organic chemistry"
     ]},
-    { title: "Unit 19: Biomolecules", topics: [
+    { title: "Unit 19: Biomolecules", weight: {q:"1–2 Q", level:"low"}, topics: [
       "General introduction and importance of biomolecules",
       "Carbohydrates: Classification, aldoses and ketoses, monosaccharides (glucose and fructose)",
       "Constituent monosaccharides of oligosaccharides (sucrose, lactose and maltose)",
@@ -629,7 +659,7 @@ const SYLLABUS = {
       "Nucleic Acids: Chemical constitution of DNA and RNA, biological functions",
       "Hormones: General introduction"
     ]},
-    { title: "Unit 20: Principles Related to Practical Chemistry", topics: [
+    { title: "Unit 20: Principles Related to Practical Chemistry", weight: {q:"1 Q", level:"low"}, topics: [
       "Detection of extra elements (N, S, halogens) in organic compounds",
       "Detection of functional groups: hydroxyl (alcoholic and phenolic), carbonyl (aldehyde and ketones), carboxyl and amino groups",
       "Inorganic compound preparation: Mohr's salt, potash alum",
@@ -643,7 +673,7 @@ const SYLLABUS = {
     ]}
   ],
   biology: [
-    { title: "Unit 1: Diversity in Living World", topics: [
+    { title: "Unit 1: Diversity in Living World", weight: {q:"4–6 Q", level:"medium"}, topics: [
       "What is living? Biodiversity, Need for classification, Taxonomy and Systematics",
       "Concept of species and taxonomical hierarchy, Binomial nomenclature",
       "Five kingdom classification",
@@ -652,14 +682,14 @@ const SYLLABUS = {
       "Salient features and classification of plants: Algae, Bryophytes, Pteridophytes, Gymnosperms (3–5 features and 2 examples each)",
       "Salient features and classification of animals: non-chordates up to phyla level and chordates up to classes level"
     ]},
-    { title: "Unit 2: Structural Organisation in Animals and Plants", topics: [
+    { title: "Unit 2: Structural Organisation in Animals and Plants", weight: {q:"2–3 Q", level:"medium"}, topics: [
       "Morphology and modifications, Tissues",
       "Anatomy and functions of root, stem, leaf, inflorescence (cymose and racemose), flower, fruit and seed",
       "Plant families: Malvaceae, Cruciferae, Leguminosae, Compositae, Graminae",
       "Animal tissues",
       "Morphology, anatomy and functions of digestive, circulatory, respiratory, nervous and reproductive systems of Frog"
     ]},
-    { title: "Unit 3: Cell Structure and Function", topics: [
+    { title: "Unit 3: Cell Structure and Function", weight: {q:"5–7 Q", level:"high"}, topics: [
       "Cell theory and cell as the basic unit of life",
       "Structure of prokaryotic and eukaryotic cell; Plant cell and animal cell",
       "Cell envelope, cell membrane, cell wall",
@@ -671,7 +701,7 @@ const SYLLABUS = {
       "Enzymes — types, properties, enzyme action, classification and nomenclature",
       "Cell division: Cell cycle, mitosis, meiosis and their significance"
     ]},
-    { title: "Unit 4: Plant Physiology", topics: [
+    { title: "Unit 4: Plant Physiology", weight: {q:"8–10 Q", level:"high"}, topics: [
       "Photosynthesis as autotrophic nutrition, site of photosynthesis, pigments involved (elementary idea)",
       "Photochemical and biosynthetic phases of photosynthesis",
       "Cyclic and non-cyclic photophosphorylation, Chemiosmotic hypothesis",
@@ -683,7 +713,7 @@ const SYLLABUS = {
       "Conditions of growth, differentiation, dedifferentiation and redifferentiation",
       "Growth regulators: auxin, gibberellin, cytokinin, ethylene, ABA"
     ]},
-    { title: "Unit 5: Human Physiology", topics: [
+    { title: "Unit 5: Human Physiology", weight: {q:"15–17 Q", level:"high"}, topics: [
       "Breathing and Respiration: Respiratory system in humans, mechanism of breathing and its regulation",
       "Exchange of gases, transport of gases, regulation of respiration, respiratory volumes",
       "Disorders: Asthma, Emphysema, Occupational respiratory disorders",
@@ -705,7 +735,7 @@ const SYLLABUS = {
       "Mechanism of hormone action, Role of hormones as messengers and regulators",
       "Hypo- and hyperactivity disorders: Dwarfism, Acromegaly, Cretinism, goiter, diabetes, Addison's disease"
     ]},
-    { title: "Unit 6: Reproduction", topics: [
+    { title: "Unit 6: Reproduction", weight: {q:"3–5 Q", level:"high"}, topics: [
       "Sexual reproduction in flowering plants: Flower structure, development of male and female gametophytes",
       "Pollination — types, agencies and examples; Outbreeding devices; Pollen-Pistil interaction",
       "Double fertilization; Post fertilization events — development of endosperm and embryo, seed and fruit",
@@ -718,7 +748,7 @@ const SYLLABUS = {
       "Birth control — need and methods, contraception and Medical Termination of Pregnancy (MTP)",
       "Amniocentesis; Infertility and assisted reproductive technologies — IVF, ZIFT, GIFT"
     ]},
-    { title: "Unit 7: Genetics and Evolution", topics: [
+    { title: "Unit 7: Genetics and Evolution", weight: {q:"10–14 Q", level:"high"}, topics: [
       "Mendelian Inheritance; Deviations: Incomplete dominance, Co-dominance, Multiple alleles",
       "Inheritance of blood groups, Pleiotropy, Elementary idea of polygenic inheritance",
       "Chromosome theory of inheritance; Chromosomes and genes",
@@ -736,7 +766,7 @@ const SYLLABUS = {
       "Types of natural selection; Gene flow and genetic drift; Hardy-Weinberg's principle",
       "Adaptive Radiation; Human evolution"
     ]},
-    { title: "Unit 8: Biology and Human Welfare", topics: [
+    { title: "Unit 8: Biology and Human Welfare", weight: {q:"2–3 Q", level:"medium"}, topics: [
       "Health and Disease; Pathogens and parasites causing human diseases",
       "Malaria, Filariasis, Ascariasis, Typhoid, Pneumonia, common cold, amoebiasis, ring worm",
       "Dengue, chikungunya",
@@ -747,14 +777,14 @@ const SYLLABUS = {
       "Microbes in sewage treatment, energy generation",
       "Microbes as biocontrol agents and biofertilizers"
     ]},
-    { title: "Unit 9: Biotechnology and Its Applications", topics: [
+    { title: "Unit 9: Biotechnology and Its Applications", weight: {q:"3–4 Q", level:"high"}, topics: [
       "Principles and process of Biotechnology: Genetic engineering (Recombinant DNA technology)",
       "Application in health: Human insulin and vaccine production, gene therapy",
       "Genetically modified organisms — Bt crops",
       "Transgenic Animals",
       "Biosafety issues — Biopiracy and patents"
     ]},
-    { title: "Unit 10: Ecology and Environment", topics: [
+    { title: "Unit 10: Ecology and Environment", weight: {q:"4–6 Q", level:"high"}, topics: [
       "Organisms and environment; Population interactions: mutualism, competition, predation, parasitism",
       "Population attributes: growth, birth rate and death rate, age distribution",
       "Ecosystem: Patterns, components, productivity and decomposition",
@@ -798,11 +828,15 @@ function buildPanels() {
       const total = unit.topics.length;
       const done = unit.topics.filter((_,ti) => state[getKey(subj,ui,ti)]).length;
 
+      const wt = unit.weight || {q:'', level:'low'};
+      const wtClass = wt.level === 'high' ? 'wt-high' : wt.level === 'medium' ? 'wt-medium' : 'wt-low';
+      const wtLabel = wt.level === 'high' ? '🔥' : wt.level === 'medium' ? '⚡' : '📗';
       card.innerHTML = `
         <div class="unit-header" onclick="toggleUnit(this)">
           <div class="unit-num">${ui+1}</div>
           <div class="unit-title">${unit.title}</div>
           <div class="unit-right">
+            <span class="wt-badge ${wtClass}">${wtLabel} ${wt.q}</span>
             <div class="mini-bar-wrap"><div class="mini-bar-fill" id="mb_${subj}_${ui}" style="width:${total?Math.round(done/total*100):0}%"></div></div>
             <span class="unit-count" id="uc_${subj}_${ui}">${done}/${total}</span>
           </div>
